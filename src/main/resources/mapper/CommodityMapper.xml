@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.macross.shopping_mall.mapper.CommodityMapper">
+
+    <select id="homeBanner" resultType="HomeBanner">
+        select * from home_banner order by weight asc
+    </select>
+
+
+    <resultMap id="homeCommodityResultMap" type="CommodityCategory">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+
+        <result column="describe" jdbcType="VARCHAR" property="describe"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+
+        <collection property="commodityList" ofType="Commodity">
+            <id column="commodity_id" jdbcType="INTEGER" property="id"/>
+
+            <result column="category_id" jdbcType="INTEGER" property="categoryId"/>
+            <result column="commodity_describe" jdbcType="VARCHAR" property="describe"/>
+            <result column="home_img" jdbcType="VARCHAR" property="homeImg"/>
+            <result column="price" jdbcType="INTEGER" property="price"/>
+
+        </collection>
+
+
+    </resultMap>
+
+
+
+    <select id="homeCommodity" resultMap="homeCommodityResultMap">
+            SELECT
+                cc.id,cc.describe,cc.create_time,
+                c.id AS commodity_id,c.category_id,c.describe AS commodity_describe,c.home_img,c.price
+                FROM commodity_category cc
+                RIGHT JOIN commodity c ON cc.id=c.category_id
+                ORDER BY c.id ASC
+    </select>
+
+    <resultMap id="CommodityDetailResultMap" type="Commodity">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+
+        <result column="describe" jdbcType="VARCHAR" property="describe"/>
+        <result column="home_img" jdbcType="VARCHAR" property="homeImg"/>
+        <result column="detail_img" jdbcType="VARCHAR" property="detailImg"/>
+        <result column="price" jdbcType="INTEGER" property="price"/>
+        <result column="point" jdbcType="INTEGER" property="point"/>
+
+        <collection property="commodityBannerList" ofType="CommodityBanner">
+            <id column="commodity_banner_id" jdbcType="INTEGER" property="id"/>
+
+            <result column="commodity_id" jdbcType="INTEGER" property="commodityId"/>
+            <result column="img" jdbcType="VARCHAR" property="img"/>
+            <result column="weight" jdbcType="INTEGER" property="weight"/>
+
+        </collection>
+
+    </resultMap>
+
+
+    <select id="findCommodityDetail" resultMap="CommodityDetailResultMap">
+        SELECT c.id,c.describe,c.detail_img,c.home_img,c.price,c.point,cb.id AS commodity_banner_id,cb.commodity_id,cb.img,cb.weight
+            FROM commodity c
+            LEFT JOIN commodity_banner cb ON c.id = cb.commodity_id
+            where c.id=#{commodity_id}
+            ORDER BY c.id ASC ,cb.weight ASC
+    </select>
+</mapper>
