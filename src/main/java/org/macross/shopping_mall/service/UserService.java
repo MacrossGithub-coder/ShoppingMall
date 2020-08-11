@@ -11,4 +11,6 @@ public interface UserService {
     String login(LoginRequest loginRequest);
 
     User findUserInfoById(Integer user_id);
+
+    boolean logout(Integer userId);
 }

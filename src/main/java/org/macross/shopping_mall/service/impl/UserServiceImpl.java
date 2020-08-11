@@ -8,7 +8,10 @@ import org.macross.shopping_mall.model.request.RegisterRequest;
 import org.macross.shopping_mall.service.UserService;
 import org.macross.shopping_mall.utils.CommonsUtils;
 import org.macross.shopping_mall.utils.JWTUtils;
+import org.macross.shopping_mall.utils.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -20,6 +23,12 @@ public class UserServiceImpl implements UserService {
     @Autowired
     UserMapper userMapper;
 
+    @Autowired
+    private RedisUtil redisUtil;
+
+    @Autowired
+    @Qualifier("redisTemplateMaster")
+    private RedisTemplate<String, Object> redisTemplateMaster;
 
     @Override
     public int register(RegisterRequest registerRequest) {
@@ -49,7 +58,11 @@ public class UserServiceImpl implements UserService {
         //生成token
         if(user.getId() != null){
             String token = JWTUtils.genericJsonWebToken(user);
-            return token;
+            //存储token { token: userId } 过期时间为1周
+            boolean result = redisUtil.setObj(token,user.getId(),60*60*24*7);
+            //{ userId ：token } 防止用户重复登录
+            boolean result2 = redisUtil.set(user.getId().toString(),token);
+            return result && result2 ? token:null;
         }
         return null;
 
@@ -59,11 +72,17 @@ public class UserServiceImpl implements UserService {
     public User findUserInfoById(Integer user_id) {
 
         User user = userMapper.findUserInfoById(user_id);
+        return user;
+    }
 
-        if (user != null){
-            return user;
+    @Override
+    public boolean logout(Integer userId) {
+        try {
+            return redisTemplateMaster.delete(userId.toString());
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
         }
-        return null;
     }
 
 

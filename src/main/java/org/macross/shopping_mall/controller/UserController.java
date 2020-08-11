@@ -31,6 +31,15 @@ public class UserController {
         return token != null ? JsonData.buildSuccess(token):JsonData.buildError("登录失败");
     }
 
+    @RequestMapping("logout")
+    public JsonData login(HttpServletRequest request){
+
+        Integer userId = (Integer) request.getAttribute("user_id");
+        boolean result =  userService.logout(userId);
+        return result ? JsonData.buildSuccess("删除redis中的token缓存成功"):JsonData.buildError("删除redis中的token缓存失败");
+    }
+
+
     @GetMapping("find_by_token")
     public JsonData findUserInfoByToken(HttpServletRequest request){
 

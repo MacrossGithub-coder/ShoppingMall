@@ -32,6 +32,7 @@ public class ShoppingCartOrderServiceImpl implements ShoppingCartOrderService {
     @Autowired
     CommodityOrderService commodityOrderService;
 
+
     @Override
     public int addToCart(Integer userId, Integer commodityId) {
 
