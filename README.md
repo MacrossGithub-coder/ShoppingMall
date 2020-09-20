@@ -48,3 +48,9 @@
 
   * 注销：完善注销业务。
 
+#### V1.2
+
+* 新增业务
+  * 使用ElasticSearch实现商品的精准查询和模糊查询
+    * 更新ElasticSearch数据http://localhost:8888/api/v1/pub/es/update_data
+    * 查询商品http://localhost:8888/api/v1/pub/es/search_commodity?keyword=apple

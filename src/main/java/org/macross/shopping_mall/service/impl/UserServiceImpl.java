@@ -43,8 +43,7 @@ public class UserServiceImpl implements UserService {
             user.setHeadImg(getRandomImg());
             user.setCreateTime(new Date());
 
-            int result = userMapper.register(user);
-            return result;
+            return userMapper.register(user);
         }
         return -1;
 

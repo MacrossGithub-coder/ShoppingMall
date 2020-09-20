@@ -25,6 +25,7 @@ public class BloomFilterTest {
         }
         long end = System.nanoTime();
         System.out.println("布隆过滤器消耗时间:" + (end - start));
+
         int sum = 0;
         for (int i = capacity + 20000; i < capacity + 30000; i++) {
             if (bloomFilter.mightContain(i)) {

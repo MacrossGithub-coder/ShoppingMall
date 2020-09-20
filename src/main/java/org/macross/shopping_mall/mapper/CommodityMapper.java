@@ -13,5 +13,7 @@ public interface CommodityMapper {
 
     List<CommodityCategory> homeCommodity();
 
+    List<Commodity> findAllCommodity();
+
     Commodity findCommodityDetail(@Param("commodity_id") Integer commodityId);
 }

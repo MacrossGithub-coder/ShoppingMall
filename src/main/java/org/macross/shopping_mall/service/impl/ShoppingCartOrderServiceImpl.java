@@ -58,9 +58,7 @@ public class ShoppingCartOrderServiceImpl implements ShoppingCartOrderService {
         shoppingCartOrder.setCommodityImg(commodityDetail.getHomeImg());
         shoppingCartOrder.setCreateTime(new Date());
 
-        int result = shoppingCartOrderMapper.addToCart(shoppingCartOrder);
-
-        return result;
+        return shoppingCartOrderMapper.addToCart(shoppingCartOrder);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -86,9 +84,8 @@ public class ShoppingCartOrderServiceImpl implements ShoppingCartOrderService {
             commodityOrderService.commodityOrder(userId,shoppingCartOrder.getCommodityId());
         }
         //购物车订单->state=1
-        int result = shoppingCartOrderMapper.updateOrderState(userId);
 
-        return result;
+        return shoppingCartOrderMapper.updateOrderState(userId);
     }
 
     @Override

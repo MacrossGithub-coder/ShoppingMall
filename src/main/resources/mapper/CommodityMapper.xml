@@ -58,6 +58,10 @@
 
     </resultMap>
 
+    <select id="findAllCommodity" resultType="Commodity">
+        select * from commodity
+    </select>
+
 
     <select id="findCommodityDetail" resultMap="CommodityDetailResultMap">
         SELECT c.id,c.describe,c.detail_img,c.home_img,c.price,c.point,cb.id AS commodity_banner_id,cb.commodity_id,cb.img,cb.weight
