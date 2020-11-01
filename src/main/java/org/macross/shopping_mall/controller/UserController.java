@@ -34,8 +34,13 @@ public class UserController {
     @RequestMapping("logout")
     public JsonData login(HttpServletRequest request){
 
+        String accessToken = request.getHeader("token");
+        if (accessToken == null){
+            accessToken = request.getParameter("token");
+        }
+
         Integer userId = (Integer) request.getAttribute("user_id");
-        boolean result =  userService.logout(userId);
+        boolean result =  userService.logout(userId,accessToken);
         return result ? JsonData.buildSuccess("删除redis中的token缓存成功"):JsonData.buildError("删除redis中的token缓存失败");
     }
 

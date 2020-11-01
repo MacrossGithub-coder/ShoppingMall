@@ -43,11 +43,11 @@ public class LoginInterceptor implements HandlerInterceptor {
                     sendJsonMessage(response, JsonData.buildError(-5,"登录过期，请重新登录！"));
                     return false;
                 }
-                Object latest_token =  redisTemplateSlave2.opsForValue().get(userId.toString());
-                if (!latest_token.equals(accessToken)){
-                    sendJsonMessage(response, JsonData.buildError(-5,"登录过期，请重新登录！"));
-                    return false;
-                }
+//                Object latest_token =  redisTemplateSlave2.opsForValue().get(userId.toString());
+//                if (!latest_token.equals(accessToken)){
+//                    sendJsonMessage(response, JsonData.buildError(-5,"登录过期，请重新登录！"));
+//                    return false;
+//                }
                 Claims claims = JWTUtils.checkJWT(accessToken);
                 if (claims != null){
                     Integer id = (Integer) claims.get("id");

@@ -4,7 +4,7 @@
 <mapper namespace="org.macross.shopping_mall.mapper.CommodityMapper">
 
     <select id="homeBanner" resultType="HomeBanner">
-        select * from home_banner order by weight asc
+        select * from home_banner order by weight asc LIMIT 4,5
     </select>
 
 
@@ -21,7 +21,6 @@
             <result column="commodity_describe" jdbcType="VARCHAR" property="describe"/>
             <result column="home_img" jdbcType="VARCHAR" property="homeImg"/>
             <result column="price" jdbcType="INTEGER" property="price"/>
-
         </collection>
 
 
@@ -35,7 +34,7 @@
                 c.id AS commodity_id,c.category_id,c.describe AS commodity_describe,c.home_img,c.price
                 FROM commodity_category cc
                 RIGHT JOIN commodity c ON cc.id=c.category_id
-                ORDER BY c.id ASC
+                ORDER BY c.category_id ASC,c.weight DESC
     </select>
 
     <resultMap id="CommodityDetailResultMap" type="Commodity">

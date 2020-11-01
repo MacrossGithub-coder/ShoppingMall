@@ -16,6 +16,7 @@ import java.util.List;
  *         price	int	价格
  *         point	int	好评率,单位%
  *         create_time	datetime
+ *         weight 权重
  */
 
 
@@ -41,6 +42,8 @@ public class Commodity {
 
     private Integer point;
 
+    private Integer weight;
+
     @JsonProperty("create_time")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date createTIme;
@@ -58,6 +61,7 @@ public class Commodity {
                 ", detailImg='" + detailImg + '\'' +
                 ", price=" + price +
                 ", point=" + point +
+                ", weight=" + weight +
                 ", createTIme=" + createTIme +
                 ", commodityBannerList=" + commodityBannerList +
                 '}';
@@ -137,6 +141,14 @@ public class Commodity {
 
     public List<CommodityBanner> getCommodityBannerList() {
         return commodityBannerList;
+    }
+
+    public Integer getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Integer weight) {
+        this.weight = weight;
     }
 
     public void setCommodityBannerList(List<CommodityBanner> commodityBannerList) {

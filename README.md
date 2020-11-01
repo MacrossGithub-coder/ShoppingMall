@@ -54,3 +54,17 @@
   * 使用ElasticSearch实现商品的精准查询和模糊查询
     * 更新ElasticSearch数据http://localhost:8888/api/v1/pub/es/update_data
     * 查询商品http://localhost:8888/api/v1/pub/es/search_commodity?keyword=apple
+
+#### V2
+
+* * [ ] 评价系统
+
+  * [ ] 短信验证登录
+
+  * [ ] 商品规格选择
+
+  * [ ] 打通微信支付
+
+  * [ ] 用户自定义头像
+
+  * [ ] 秒杀系统

@@ -14,7 +14,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -33,7 +35,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public int register(RegisterRequest registerRequest) {
 
-        if(registerRequest.getName() !=null && registerRequest.getPhone() !=null && registerRequest.getPwd() !=null){
+        if (registerRequest.getName() != null && registerRequest.getPhone() != null && registerRequest.getPwd() != null) {
             User user = new User();
             user.setName(registerRequest.getName());
             user.setPhone(registerRequest.getPhone());
@@ -52,19 +54,30 @@ public class UserServiceImpl implements UserService {
     @Override
     public String login(LoginRequest loginRequest) {
 
-        User user = userMapper.login(loginRequest.getPhone(),CommonsUtils.MD5(loginRequest.getPwd()));
+        User user = userMapper.login(loginRequest.getPhone(), CommonsUtils.MD5(loginRequest.getPwd()));
 
         //生成token
-        if(user.getId() != null){
+        if (user.getId() != null) {
             String token = JWTUtils.genericJsonWebToken(user);
             //存储token { token: userId } 过期时间为1周
-            boolean result = redisUtil.setObj(token,user.getId(),60*60*24*7);
-            //{ userId ：token } 防止用户重复登录
-            boolean result2 = redisUtil.set(user.getId().toString(),token);
-            return result && result2 ? token:null;
+            boolean result = redisUtil.setObj(token, user.getId(), 60 * 60 * 24 * 7);
+
+//            单设备登录方案：
+//            { userId ：token } 防止用户重复登录
+//            boolean result2 = redisUtil.set(user.getId().toString(),token);
+//            return result && result2 ? token:null;
+
+            Long size = redisTemplateMaster.opsForList().size(user.getId().toString());
+            //多设备登录方案：表示允许number台设备同时登录,大于number则将最早登录的设备挤出
+            int number = 2;
+            if (size > number - 1) {
+                String discard_token = (String) redisTemplateMaster.opsForList().rightPop(user.getId().toString());
+                redisTemplateMaster.delete(discard_token);
+            }
+            redisTemplateMaster.opsForList().leftPush(user.getId().toString(), token);
+            return token;
         }
         return null;
-
     }
 
     @Override
@@ -75,10 +88,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean logout(Integer userId) {
+    public boolean logout(Integer userId, String accessToken) {
         try {
-            return redisTemplateMaster.delete(userId.toString());
-        }catch (Exception e){
+            String temp_token = null;
+            List<String> list = new ArrayList<>();
+            while (!accessToken.equals(temp_token = (String) redisTemplateMaster.opsForList().rightPop(userId.toString()))) {
+                list.add(temp_token);
+            }
+            int size = list.size();
+            if (size > 0) {
+                for (int i = size - 1; i >= 0; i--) {
+                    redisTemplateMaster.opsForList().rightPush(userId.toString(), list.get(i));
+                }
+            }
+            return redisTemplateMaster.delete(accessToken);
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -88,7 +112,7 @@ public class UserServiceImpl implements UserService {
     /**
      * 随机头像
      */
-    private static final String [] headImg = {
+    private static final String[] headImg = {
             "https://xd-video-pc-img.oss-cn-beijing.aliyuncs.com/xdclass_pro/default/head_img/12.jpeg",
             "https://xd-video-pc-img.oss-cn-beijing.aliyuncs.com/xdclass_pro/default/head_img/11.jpeg",
             "https://xd-video-pc-img.oss-cn-beijing.aliyuncs.com/xdclass_pro/default/head_img/13.jpeg",
@@ -96,11 +120,11 @@ public class UserServiceImpl implements UserService {
             "https://xd-video-pc-img.oss-cn-beijing.aliyuncs.com/xdclass_pro/default/head_img/15.jpeg"
     };
 
-    private String getRandomImg(){
+    private String getRandomImg() {
 
         int size = headImg.length;
         Random random = new Random();
-        int index =  random.nextInt(size);
+        int index = random.nextInt(size);
         return headImg[index];
     }
 
