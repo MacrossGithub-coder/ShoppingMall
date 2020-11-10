@@ -9,4 +9,8 @@ public interface CommoditySeckillService {
     void doSeckillService(Integer userId, CommoditySeckill commoditySeckill);
 
     int getSeckillResult(Integer commodityId, Integer userId);
+
+    String createSeckillPath(Integer commodityId, Integer userId);
+
+    boolean confirmPathValid(String key,String path);
 }

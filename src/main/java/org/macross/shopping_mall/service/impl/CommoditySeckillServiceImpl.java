@@ -8,6 +8,7 @@ import org.macross.shopping_mall.model.entity.SeckillOrder;
 import org.macross.shopping_mall.rabbitmq.SeckillMessage;
 import org.macross.shopping_mall.service.CommodityOrderService;
 import org.macross.shopping_mall.service.CommoditySeckillService;
+import org.macross.shopping_mall.utils.CommonsUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,6 +16,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -88,12 +90,12 @@ public class CommoditySeckillServiceImpl implements CommoditySeckillService {
         int state = commoditySeckillMapper.reduceStock(commoditySeckill.getCommodityId());
         if (state < 0) {
             //在缓存中进行标记
-            redisTemplate.opsForValue().set(COMMODITY_OVER+commoditySeckill.getCommodityId().toString(),
-                                            true,10*60L, TimeUnit.SECONDS);
+            redisTemplate.opsForValue().set(COMMODITY_OVER + commoditySeckill.getCommodityId().toString(),
+                    true, 10 * 60L, TimeUnit.SECONDS);
             return;
         }
         int orderId = commodityOrderService.seckillCommodityOrder(userId, commoditySeckill);
-        if (orderId <= 0){
+        if (orderId <= 0) {
             return;
         }
 
@@ -113,15 +115,35 @@ public class CommoditySeckillServiceImpl implements CommoditySeckillService {
     public int getSeckillResult(Integer commodityId, Integer userId) {
 
         SeckillOrder seckillOrder = commoditySeckillMapper.findSeckillOrder(userId, commodityId);
-        if (seckillOrder!=null){
+        if (seckillOrder != null) {
             return seckillOrder.getOrderId();
         }
 
         //查看商品是否被秒杀完
         Boolean isOver = redisTemplate.hasKey(COMMODITY_OVER + commodityId);
-        if (isOver){
+        if (isOver) {
             return -1;
         }
         return 0;
+    }
+
+    @Override
+    public String createSeckillPath(Integer commodityId, Integer userId) {
+        String str = UUID.randomUUID().toString();
+
+        //Redis:{key:"path:userId:commodityId,Value:str}
+        String key = "path:" + userId + ":" + commodityId;
+        String value = CommonsUtils.MD5(str);
+        if (value == null) return null;
+        redisTemplate.opsForValue().set(key, value, 60 * 10L, TimeUnit.SECONDS);
+        return str;
+    }
+
+    @Override
+    public boolean confirmPathValid(String key, String path) {
+
+        String value = (String) redisTemplate.opsForValue().get(key);
+        if (value == null) return false;
+        return value.equals(CommonsUtils.MD5(path));
     }
 }

@@ -86,3 +86,9 @@
 
   * 商品秒杀：http://localhost:8888/api/v1/pri/seckill/commodity_seckill?commodity_id=21
   * 查看秒杀结果：http://localhost:8888/api/v1/pri/seckill/get_seckill_result?commodity_id=21
+
+#### V2.2
+
+* 安全优化：秒杀接口地址隐藏，动态生成接口地址
+  * 获取秒杀接口地址：http://localhost:8888/api/v1/pri/seckill/get_path?commodity_id=21
+  * 通过验证码+接口地址隐藏方案防止他人恶意攻击接口，降低服务器压力。
