@@ -43,6 +43,12 @@ public class RedisConfig {
         return new RedisStandaloneConfiguration();
     }
 
+    @Bean
+    @ConfigurationProperties(prefix = "spring.redis.master.seckill")
+    public RedisStandaloneConfiguration redisConfigMasterSeckill() {
+        return new RedisStandaloneConfiguration();
+    }
+
     /**
      * 配置第一个slave
      * @return
@@ -78,6 +84,12 @@ public class RedisConfig {
         return new LettuceConnectionFactory(redisConfigMaster, clientConfiguration);
     }
 
+    @Bean("MasterSeckill")
+    public LettuceConnectionFactory factoryMasterSeckill(GenericObjectPoolConfig config, RedisStandaloneConfiguration redisConfigMaster) {
+        LettuceClientConfiguration clientConfiguration = LettucePoolingClientConfiguration.builder().poolConfig(config).build();
+        return new LettuceConnectionFactory(redisConfigMasterSeckill(), clientConfiguration);
+    }
+
     @Bean("Slave1")
     public LettuceConnectionFactory factorySlave1(GenericObjectPoolConfig config, RedisStandaloneConfiguration redisConfigSlave1) {
         LettuceClientConfiguration clientConfiguration = LettucePoolingClientConfiguration.builder().poolConfig(config).build();
@@ -101,6 +113,11 @@ public class RedisConfig {
     @Bean("redisTemplateMaster")
     @Primary
     public RedisTemplate<String, Object> redisTemplateMaster(@Qualifier("Master") RedisConnectionFactory factory) {
+        return getStringStringRedisTemplate(factory);
+    }
+
+    @Bean("redisTemplateMasterSeckill")
+    public RedisTemplate<String, Object> redisTemplateMasterSeckill(@Qualifier("MasterSeckill") RedisConnectionFactory factory) {
         return getStringStringRedisTemplate(factory);
     }
 

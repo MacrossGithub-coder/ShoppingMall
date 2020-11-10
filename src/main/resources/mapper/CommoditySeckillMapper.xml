@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.macross.shopping_mall.mapper.CommoditySeckillMapper">
+
+    <select id="findSeckillOrder" resultType="SeckillOrder">
+        select * from seckill_order where user_id = #{user_id} and commodity_id = #{commodity_id}
+    </select>
+
+    <select id="findStockByCommodityId" resultType="CommoditySeckill" >
+        select * from commodity_seckill where commodity_id = #{commodity_id}
+    </select>
+
+    <update id="reduceStock">
+        UPDATE commodity_seckill SET stock = stock-1 where commodity_id = #{commodity_id} and stock >0
+    </update>
+
+    <insert id="commoditySeckillOrder" parameterType="SeckillOrder" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        INSERT INTO `seckill_order`(`user_id`, `commodity_id`, `order_id`)
+        VALUES (#{userId,jdbcType=INTEGER},
+                #{commodityId,jdbcType=INTEGER},
+                #{orderId,jdbcType=INTEGER})
+    </insert>
+</mapper>
